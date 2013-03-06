@@ -1,12 +1,22 @@
 
 /*
- * RTP传输流程：
- * 1、配置信息
- * 	     包括本地端口，目标端口，目标ip，发送的数据包次数
- * 2、ip数据结构转换
- * 3、时间戳设置
- * 4、创建会话
- * 5、发送及接受数据包
+ *****************************************
+ * RTP传输流程：                                                                    *
+ * 1、配置信息							 *
+ * 	     包括本地端口，目标端口，目标ip，             *
+ * 	     以及发送的数据包次数				 *
+ * 2、ip数据结构转换						 *
+ * 3、时间戳设置							 *
+ * 4、创建会话							 *
+ * 5、发送及接受数据包					 *
+ *****************************************
+ *
+ ******************************************
+ * Send:  	192.168.0.30--->192.168.0.20  *
+ * 			10000--->12000				  *
+ * Recv:	192.168.0.20--->192.168.0.30  *
+ * 			12000--->10000				  *
+ ******************************************
  *
  */
 
@@ -91,7 +101,7 @@ void Java_com_example_rtpsend_MainActivity_RtpTest(JNIEnv* env, jobject thiz)
 	LOGD("LocalPort:%d",portbase);
 	LOGD("DestPort:%d",destport);
 	LOGD(DEST_IP);
-	LOGD("ready!");
+	LOGD("-ready!");
 
 	//5、发送及接受数据包
 	for (i = 1 ; i <= num ; i++)
@@ -100,27 +110,6 @@ void Java_com_example_rtpsend_MainActivity_RtpTest(JNIEnv* env, jobject thiz)
 		status = sess.SendPacket((void *)"1234567890",10,0,false,10);
 
 		LOGD("send packet:%d",i);
-
-		sess.BeginDataAccess();
-
-		// check incoming packets
-		if (sess.GotoFirstSourceWithData())
-		{
-			do
-			{
-				RTPPacket *pack;
-				
-				while ((pack = sess.GetNextPacket()) != NULL)
-				{
-					// You can examine the data here
-					LOGD("!!!!!Got packet!!!!!");
-					// we don't longer need the packet, so we'll delete it
-					sess.DeletePacket(pack);
-				}
-			} while (sess.GotoNextSourceWithData());
-		}
-		
-		sess.EndDataAccess();
 
 #ifndef RTP_SUPPORT_THREAD
 		status = sess.Poll();
